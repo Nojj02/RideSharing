@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RideSharing.DriverApi", "Source\RideSharing.DriverApi\RideSharing.DriverApi.csproj", "{6AFE07AD-6904-41EF-89CF-958285C8A1C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RideSharing.RideApi", "Source\RideSharing.rideApi\RideSharing.RideApi.csproj", "{C1EB74C0-6047-4B75-BD63-A14656CB5349}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RideSharing.RideApi.Tests", "Source\RideSharing.RideApi.Tests\RideSharing.RideApi.Tests.csproj", "{95CAE4BD-65C3-4C55-B170-2BE510579B82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,11 +76,24 @@ Global
 		{C1EB74C0-6047-4B75-BD63-A14656CB5349}.Release|x64.Build.0 = Release|x64
 		{C1EB74C0-6047-4B75-BD63-A14656CB5349}.Release|x86.ActiveCfg = Release|x86
 		{C1EB74C0-6047-4B75-BD63-A14656CB5349}.Release|x86.Build.0 = Release|x86
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|x64.Build.0 = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Debug|x86.Build.0 = Debug|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|x64.ActiveCfg = Release|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|x64.Build.0 = Release|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|x86.ActiveCfg = Release|Any CPU
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7A7DE27A-AA34-4AED-A4AD-A8F41236C20D} = {95EB9280-0664-44B7-95EC-E47543A1495F}
 		{D051FE9C-6DC8-42A2-B07E-9C62E9FA3EA6} = {95EB9280-0664-44B7-95EC-E47543A1495F}
 		{6AFE07AD-6904-41EF-89CF-958285C8A1C9} = {95EB9280-0664-44B7-95EC-E47543A1495F}
 		{C1EB74C0-6047-4B75-BD63-A14656CB5349} = {95EB9280-0664-44B7-95EC-E47543A1495F}
+		{95CAE4BD-65C3-4C55-B170-2BE510579B82} = {95EB9280-0664-44B7-95EC-E47543A1495F}
 	EndGlobalSection
 EndGlobal
