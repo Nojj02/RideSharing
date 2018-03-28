@@ -1,0 +1,1 @@
+dotnet run -p Source/RideSharing.RiderApp/RideSharing.RiderApp.csproj
