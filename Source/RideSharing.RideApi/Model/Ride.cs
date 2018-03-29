@@ -7,15 +7,20 @@ namespace RideSharing.RideApi.Model
         public Ride(Guid id, string pickupPoint, string destination)
             : base(id)
         {
-            Status = RideState.Requested;
+            State = RideState.Requested;
             PickupPoint = pickupPoint;
             Destination = destination;
         }
         
-        public RideState Status { get; }
+        public RideState State { get; private set; }
 
-        public string PickupPoint { get; set; }
+        public string PickupPoint { get; }
 
-        public string Destination { get; set; }
+        public string Destination { get; }
+
+        public void Accept()
+        {
+            State = RideState.Accepted;
+        }
     }
 }
