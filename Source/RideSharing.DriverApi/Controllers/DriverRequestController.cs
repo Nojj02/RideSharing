@@ -34,6 +34,7 @@ namespace RideSharing.DriverApi.Controllers
         public async Task Post([FromBody]DriverRequestPostModel model)
         {
             var driverRequest = new DriverRequest(
+                id: Guid.NewGuid(),
                 rideId: model.RideId,
                 pickupPoint: model.PickupPoint
              );

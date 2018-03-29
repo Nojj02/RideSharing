@@ -24,15 +24,17 @@ TABLESPACE pg_default;
 ALTER TABLE "ridesharing"."ride"
     OWNER to postgres;
 
-
 -- driver request table
 CREATE TABLE "ridesharing"."driverrequest"
 (
     "db_id" bigserial NOT NULL,
     "id" uuid NOT NULL,
+    "version" bigint NOT NULL,
+    "event_type" CHARACTER VARYING(100) COLLATE pg_catalog."default"  NOT NULL,
     "event" jsonb NOT NULL,
     "timestamp" timestamp with time zone NOT NULL,
-    CONSTRAINT "driverrequestevent_pkey" PRIMARY KEY ("db_id")
+    CONSTRAINT "driverrequestevent_pkey" PRIMARY KEY ("db_id"),
+    CONSTRAINT "driverrequestversion_uq" UNIQUE ("id", "version")
 )
 WITH (
     OIDS = FALSE

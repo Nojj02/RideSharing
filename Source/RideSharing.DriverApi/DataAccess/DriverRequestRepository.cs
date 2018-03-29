@@ -23,20 +23,35 @@ namespace RideSharing.DriverApi.DataAccess
                 {
                     try
                     {
-                        var command =
-                            "INSERT INTO ridesharing.driverrequest (id, event, timestamp) VALUES (@id, @event, @timestamp)";
-                        using (var sqlCommand = new Npgsql.NpgsqlCommand(command, sqlConnection))
+                        foreach (var anEvent in entity.NewEvents)
                         {
-                            sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid,
-                                entity.Id);
-                            sqlCommand.Parameters.AddWithValue("event", NpgsqlDbType.Jsonb,
-                                JsonConvert.SerializeObject(entity));
-                            sqlCommand.Parameters.AddWithValue("timestamp", NpgsqlDbType.TimestampTz,
-                                timeStamp);
-                            sqlCommand.ExecuteNonQuery();
-                        }
+                            var command =
+                                "INSERT INTO ridesharing.driverrequest (id, version, event_type, event, timestamp) VALUES (@id, @version, @event_type, @event, @timestamp)";
+                            
+                            using (var sqlCommand = new Npgsql.NpgsqlCommand(command, sqlConnection))
+                            {
+                                sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid,
+                                    entity.Id);
+                                
+                                sqlCommand.Parameters.AddWithValue("version", NpgsqlDbType.Integer,
+                                    anEvent.Version);
 
+                                sqlCommand.Parameters.AddWithValue("event_type", NpgsqlDbType.Varchar,
+                                    anEvent.GetType().FullName);
+                                
+                                sqlCommand.Parameters.AddWithValue("event", NpgsqlDbType.Jsonb,
+                                    JsonConvert.SerializeObject(anEvent));
+                                
+                                sqlCommand.Parameters.AddWithValue("timestamp", NpgsqlDbType.TimestampTz,
+                                    timeStamp);
+                                
+                                sqlCommand.ExecuteNonQuery();
+                            }
+
+                        }
+                        
                         await transaction.CommitAsync();
+                        
                     }
                     catch (Exception e)
                     {

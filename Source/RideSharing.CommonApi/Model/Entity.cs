@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Data.Common;
 
-namespace RideSharing.RideApi.Model
+namespace RideSharing.CommonApi.Model
 {
     public abstract class Entity
     {

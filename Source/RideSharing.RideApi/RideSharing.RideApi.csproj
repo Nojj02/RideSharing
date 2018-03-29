@@ -13,4 +13,10 @@
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RideSharing.CommonApi\RideSharing.CommonApi.csproj">
+      <Project>{993AC8B1-C956-4252-BCAD-936A36FBB212}</Project>
+      <Name>RideSharing.CommonApi</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

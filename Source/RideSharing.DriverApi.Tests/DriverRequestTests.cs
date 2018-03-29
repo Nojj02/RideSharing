@@ -11,6 +11,7 @@ namespace RideSharing.DriverApi.Tests
         {
             //setup
             var driverRequest = new DriverRequest(
+                id: new Guid("12345678-1234-1234-1234-123456789012"),
                 rideId: new Guid("12345678-1234-1234-1234-123456789012"), 
                 pickupPoint: "megamall"
             );
