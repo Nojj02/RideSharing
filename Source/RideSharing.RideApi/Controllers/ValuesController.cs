@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RideSharing.RideApi.DataAccess;
+using RideSharing.RideApi.Model;
 
 namespace RideSharing.RideApi.Controllers
 {
@@ -25,8 +27,12 @@ namespace RideSharing.RideApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task Post([FromBody] RidePostModel ridePostModel) 
         {
+            var ride = new Ride(Guid.NewGuid(), ridePostModel.PickupPoint, ridePostModel.Destination);
+
+            var rideRepository = new RideRepository();
+            await rideRepository.Save(ride, DateTimeOffset.UtcNow);
         }
 
         // PUT api/values/5

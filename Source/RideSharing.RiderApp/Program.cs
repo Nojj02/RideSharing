@@ -47,6 +47,7 @@ namespace RideSharing.RiderApp
         private static void RequestRide()
         {
             Console.WriteLine("Request ride.");
+            
         }
     }
 }
