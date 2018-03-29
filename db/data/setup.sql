@@ -23,3 +23,21 @@ TABLESPACE pg_default;
 
 ALTER TABLE "ridesharing"."ride"
     OWNER to postgres;
+
+
+-- driver request table
+CREATE TABLE "ridesharing"."driverrequest"
+(
+    "db_id" bigserial NOT NULL,
+    "id" uuid NOT NULL,
+    "event" jsonb NOT NULL,
+    "timestamp" timestamp with time zone NOT NULL,
+    CONSTRAINT "driverrequestevent_pkey" PRIMARY KEY ("db_id")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE "ridesharing"."driverrequest"
+    OWNER to postgres;

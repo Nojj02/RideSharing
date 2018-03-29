@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RideSharing.DriverApi\RideSharing.DriverApi.csproj">
+      <Project>{6AFE07AD-6904-41EF-89CF-958285C8A1C9}</Project>
+      <Name>RideSharing.DriverApi</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
