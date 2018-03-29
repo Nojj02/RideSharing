@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.OData;
 using Newtonsoft.Json;
 using Npgsql;
 using NpgsqlTypes;
@@ -21,25 +24,28 @@ namespace RideSharing.RideApi.DataAccess
                 {
                     try
                     {
-                        var command = "INSERT INTO ridesharing.ride (id, version, event_type, event, timestamp) VALUES(@id, @version, @event_type, @event, @timestamp)";
-                        using (var sqlCommand = new Npgsql.NpgsqlCommand(command, sqlConnection))
+                        foreach (var anEvent in entity.NewEvents)
                         {
-                            sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, 
-                                entity.Id);
-                            
-                            sqlCommand.Parameters.AddWithValue("version", NpgsqlDbType.Integer,
-                                1);
-                            
-                            sqlCommand.Parameters.AddWithValue("event_type", NpgsqlDbType.Varchar,
-                                "Ride Request");
-                            
-                            sqlCommand.Parameters.AddWithValue("event", NpgsqlDbType.Jsonb,
-                                JsonConvert.SerializeObject(entity));
-                            
-                            sqlCommand.Parameters.AddWithValue("timestamp", NpgsqlDbType.TimestampTZ, 
-                                timeStamp);
-                            
-                            sqlCommand.ExecuteNonQuery();
+                            var command = "INSERT INTO ridesharing.ride (id, version, event_type, event, timestamp) VALUES(@id, @version, @event_type, @event, @timestamp)";
+                            using (var sqlCommand = new NpgsqlCommand(command, sqlConnection))
+                            {
+                                sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid,
+                                    entity.Id);
+
+                                sqlCommand.Parameters.AddWithValue("version", NpgsqlDbType.Integer,
+                                    anEvent.Version);
+
+                                sqlCommand.Parameters.AddWithValue("event_type", NpgsqlDbType.Varchar,
+                                    anEvent.GetType());
+
+                                sqlCommand.Parameters.AddWithValue("event", NpgsqlDbType.Jsonb,
+                                    JsonConvert.SerializeObject(anEvent));
+
+                                sqlCommand.Parameters.AddWithValue("timestamp", NpgsqlDbType.TimestampTZ,
+                                    timeStamp);
+
+                                sqlCommand.ExecuteNonQuery();
+                            }
                         }
                         
                         await transaction.CommitAsync();
@@ -57,6 +63,7 @@ namespace RideSharing.RideApi.DataAccess
 
         public Ride Get(Guid id)
         {
+            var events = new List<RideEvent>();
             using (var sqlConnection = new NpgsqlConnection(ConnectionString))
             {
                 sqlConnection.Open();
@@ -67,52 +74,33 @@ namespace RideSharing.RideApi.DataAccess
                     sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, id);
                     using (var reader = sqlCommand.ExecuteReader())
                     {
-                        if (reader.Read())
+                        while (reader.Read())
                         {
-                            var entity = (Ride)JsonConvert.DeserializeObject(Convert.ToString(reader["event"]), typeof(Ride));
-                            return entity;
+                            var anEvent = 
+                                (RideEvent)JsonConvert.DeserializeObject(
+                                    Convert.ToString(reader["event"]), 
+                                    RideEvents.EventTypeLookup.Single(x => x.Value ==Convert.ToString(reader["event_type"])).Key);
+                            events.Add(anEvent);
                         }
                     }
                 }
             }
 
-            return null;
+            return events.Any() ? new Ride(id, events) : null;
         }
 
         public async Task Update(Ride entity, DateTimeOffset timeStamp)
         {
-            using (var sqlConnection = new NpgsqlConnection(ConnectionString))
-            {
-                sqlConnection.Open();
-
-                using (var transaction = sqlConnection.BeginTransaction())
-                {
-                    try
-                    {
-                        var command = "UPDATE ridesharing.ride SET event = @event, timestamp = @timestamp WHERE id = @id";
-                        using (var sqlCommand = new Npgsql.NpgsqlCommand(command, sqlConnection))
-                        {
-                            sqlCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, 
-                                entity.Id);
-                            
-                            sqlCommand.Parameters.AddWithValue("event", NpgsqlDbType.Jsonb,
-                                JsonConvert.SerializeObject(entity));
-                            
-                            sqlCommand.Parameters.AddWithValue("timestamp", NpgsqlDbType.TimestampTZ, 
-                                timeStamp);
-                            
-                            sqlCommand.ExecuteNonQuery();
-                        }
-                        await transaction.CommitAsync();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        await transaction.RollbackAsync();
-                        throw;
-                    }
-                }
-            }
+            await Save(entity, timeStamp);
         }
+    }
+    public static class RideEvents
+    {
+        public static readonly IReadOnlyDictionary<Type, string> EventTypeLookup =
+            new Dictionary<Type, string>
+            {
+                { typeof(RideRequestedEvent), "RideSharing.RideApi.Model.RideRequestedEvent" },
+                { typeof(RideAcceptedEvent), "RideSharing.RideApi.Model.RideAcceptedEvent" }
+            };
     }
 }
