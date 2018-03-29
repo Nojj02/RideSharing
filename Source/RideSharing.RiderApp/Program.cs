@@ -1,13 +1,17 @@
 ﻿using System;
-using System.Globalization;
-using System.Net.Cache;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace RideSharing.RiderApp
 {
     class Program
     {
-        static void Main(string[] args)
+        private static readonly HttpClient client = new HttpClient();
+        
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Welcome to this Ride Sharing app!");
 
@@ -21,7 +25,7 @@ namespace RideSharing.RiderApp
                 switch (selectedOption)
                 {
                     case "1":
-                        RequestRide();
+                        await RequestRide();
                         break;
                     case "q":
                         shouldQuit = true;
@@ -44,10 +48,22 @@ namespace RideSharing.RiderApp
             Console.WriteLine("SELECT AN OPTION");
         }
 
-        private static void RequestRide()
+        private static async Task RequestRide()
         {
             Console.WriteLine("Request ride.");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            Console.WriteLine("Enter Pick-up Point:");
+            var pickupPoint = Console.ReadLine();
             
+            Console.WriteLine("Enter Destination:");
+            var destination = Console.ReadLine();
+            
+            var ride = new { PickupPoint = pickupPoint, Destination = destination };
+            var response = await client.PostAsync("http://localhost:5000/api/values", new StringContent(JsonConvert.SerializeObject(ride), Encoding.UTF8, "application/json"));
+            
+            Console.WriteLine(response.RequestMessage);
         }
     }
 }
