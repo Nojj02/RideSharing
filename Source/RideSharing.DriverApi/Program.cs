@@ -20,6 +20,7 @@ namespace RideSharing.DriverApi
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseUrls("http://*:5001;http://localhost:5001")
                 .Build();
     }
 }

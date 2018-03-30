@@ -9,7 +9,7 @@ namespace RideSharing.RiderApp
 {
     class Program
     {
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient Client = new HttpClient();
         
         static async Task Main(string[] args)
         {
@@ -51,8 +51,8 @@ namespace RideSharing.RiderApp
         private static async Task RequestRide()
         {
             Console.WriteLine("Request ride.");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            Client.DefaultRequestHeaders.Accept.Clear();
+            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             Console.WriteLine("Enter Pick-up Point:");
             var pickupPoint = Console.ReadLine();
@@ -61,7 +61,7 @@ namespace RideSharing.RiderApp
             var destination = Console.ReadLine();
             
             var ride = new { PickupPoint = pickupPoint, Destination = destination };
-            var response = await client.PostAsync("http://localhost:5000/api/values", new StringContent(JsonConvert.SerializeObject(ride), Encoding.UTF8, "application/json"));
+            var response = await Client.PostAsync("http://localhost:5000/api/values", new StringContent(JsonConvert.SerializeObject(ride), Encoding.UTF8, "application/json"));
             
             Console.WriteLine(response.RequestMessage);
         }
