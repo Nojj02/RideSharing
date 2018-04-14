@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace RideSharing.RideApi.Controllers
+namespace RideSharing.RideApi.DataAccess
 {
-    public class EventStoreItemReadModel
+    public class StoredEvent
     {
         public Guid Id { get; set; }
-        
+             
         public string EventType { get; set; }
-        
-        public dynamic Event { get; set; }
-        
+             
+        public object Event { get; set; }
+             
         public DateTimeOffset TimeStamp { get; set; }
     }
 }
