@@ -2,7 +2,7 @@
 
 namespace RideSharing.RideMatcher
 {
-    public class EventStoreItemReadModel
+    public class StoredItemReadModel
     {
         public Guid Id { get; set; }
         

@@ -3,19 +3,19 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using RideSharing.RideApi.DataAccess;
 
-namespace RideSharing.RideApi.Controllers
+namespace RideSharing.RideApi.Controllers.EventControllers
 {
     [Route("events/[controller]")]
     public class RideEventController : Controller
     {
         [HttpGet]
-        public IEnumerable<EventStoreItemReadModel> Get()
+        public IEnumerable<StoredItemReadModel> Get()
         {
             var registrationEventRepository = new RideEventRepository();
             
             return registrationEventRepository.GetAll()
                 .Select(x =>
-                    new EventStoreItemReadModel
+                    new StoredItemReadModel
                     {
                         Id = x.Id,
                         EventType = x.EventType,

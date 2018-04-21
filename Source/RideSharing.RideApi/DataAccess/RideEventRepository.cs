@@ -12,9 +12,9 @@ namespace RideSharing.RideApi.DataAccess
         private const string ConnectionString =
             "Host=localhost;Username=postgres;Password=thepassword;Database=postgres;Search Path=schooled";
         
-        public IEnumerable<EventStoreItem> GetAll()
+        public IEnumerable<StoredEvent> GetAll()
         {
-            var entities = new List<EventStoreItem>();
+            var entities = new List<StoredEvent>();
             using (var sqlConnection = new NpgsqlConnection(ConnectionString))
             {
                 sqlConnection.Open();
@@ -28,7 +28,7 @@ namespace RideSharing.RideApi.DataAccess
                         {
                             var eventType = Convert.ToString(reader["event_type"]);
                             var entity = 
-                                new EventStoreItem
+                                new StoredEvent
                                 {
                                     Id = Guid.Parse(Convert.ToString(reader["id"])),
                                     EventType = eventType,

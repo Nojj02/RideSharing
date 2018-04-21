@@ -13,7 +13,7 @@ namespace RideSharing.RideMatcher
     {
         private static readonly HttpClient Client = new HttpClient();
 
-        private static readonly List<Guid> _processedRides = new List<Guid>();
+        private static readonly List<Guid> ProcessedRides = new List<Guid>();
 
         static async Task Main(string[] args)
         {
@@ -32,11 +32,11 @@ namespace RideSharing.RideMatcher
         private static async Task ListenToRideRequest()
         {
             var response = await Client.GetStringAsync("http://localhost:5000/events/rideevent");
-            var events = JsonConvert.DeserializeObject<IEnumerable<EventStoreItemReadModel>>(response);
+            var events = JsonConvert.DeserializeObject<IEnumerable<StoredItemReadModel>>(response);
 
             foreach (var anEvent in events)
             {
-                if (!_processedRides.Contains(anEvent.Id) &&
+                if (!ProcessedRides.Contains(anEvent.Id) &&
                     anEvent.EventType == "RideSharing.RideApi.Model.RideRequestedEvent")
                 {
                     Console.WriteLine($"Event found {anEvent.EventType}");
@@ -51,7 +51,7 @@ namespace RideSharing.RideMatcher
                             PickupPoint = rideRequestedEvent.PickupPoint
                         };
 
-                    _processedRides.Add(rideRequestedEvent.Id);
+                    ProcessedRides.Add(rideRequestedEvent.Id);
                     
                     var driverRequestResponse = 
                         await Client.PostAsync("http://localhost:5001/api/driverrequest", 
