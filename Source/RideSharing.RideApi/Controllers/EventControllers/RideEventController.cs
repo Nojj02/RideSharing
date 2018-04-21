@@ -9,13 +9,13 @@ namespace RideSharing.RideApi.Controllers.EventControllers
     public class RideEventController : Controller
     {
         [HttpGet]
-        public IEnumerable<StoredItemReadModel> Get()
+        public IEnumerable<StoredEventReadModel> Get()
         {
             var registrationEventRepository = new RideEventRepository();
             
             return registrationEventRepository.GetAll()
                 .Select(x =>
-                    new StoredItemReadModel
+                    new StoredEventReadModel
                     {
                         Id = x.Id,
                         EventType = x.EventType,

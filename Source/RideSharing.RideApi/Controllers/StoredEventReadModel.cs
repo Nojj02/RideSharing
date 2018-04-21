@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace RideSharing.RideMatcher
+namespace RideSharing.RideApi.Controllers
 {
-    public class StoredItemReadModel
+    public class StoredEventReadModel
     {
         public Guid Id { get; set; }
         

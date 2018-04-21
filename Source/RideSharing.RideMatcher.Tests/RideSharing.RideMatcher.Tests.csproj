@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="xunit.core, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
+      <HintPath>..\..\..\..\.nuget\packages\xunit.extensibility.core\2.2.0\lib\netstandard1.1\xunit.core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RideSharing.DriverApi\RideSharing.DriverApi.csproj">
+      <Project>{6AFE07AD-6904-41EF-89CF-958285C8A1C9}</Project>
+      <Name>RideSharing.DriverApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RideSharing.rideApi\RideSharing.RideApi.csproj">
+      <Project>{C1EB74C0-6047-4B75-BD63-A14656CB5349}</Project>
+      <Name>RideSharing.RideApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RideSharing.RideMatcher\RideSharing.RideMatcher.csproj">
+      <Project>{C842CBE2-2D5C-4025-89B6-00EE7C8DCF35}</Project>
+      <Name>RideSharing.RideMatcher</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

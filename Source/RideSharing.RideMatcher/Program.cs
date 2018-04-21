@@ -24,43 +24,43 @@ namespace RideSharing.RideMatcher
 
             while (true)
             {
-                await ListenToRideRequest();
+                //await ListenToRideRequest();
                 await Task.Delay(1000);
             }
         }
 
-        private static async Task ListenToRideRequest()
-        {
-            var response = await Client.GetStringAsync("http://localhost:5000/events/rideevent");
-            var events = JsonConvert.DeserializeObject<IEnumerable<StoredItemReadModel>>(response);
-
-            foreach (var anEvent in events)
-            {
-                if (!ProcessedRides.Contains(anEvent.Id) &&
-                    anEvent.EventType == "RideSharing.RideApi.Model.RideRequestedEvent")
-                {
-                    Console.WriteLine($"Event found {anEvent.EventType}");
-                    
-                    var rideRequestedEvent = JsonConvert.DeserializeObject<RideRequestedEvent>(JsonConvert.SerializeObject(anEvent.Event));
-                    
-                    // do the magic
-                    var driverRequest =
-                        new
-                        {
-                            RideId = rideRequestedEvent.Id,
-                            PickupPoint = rideRequestedEvent.PickupPoint
-                        };
-
-                    ProcessedRides.Add(rideRequestedEvent.Id);
-                    
-                    var driverRequestResponse = 
-                        await Client.PostAsync("http://localhost:5001/api/driverrequest", 
-                            new StringContent(JsonConvert.SerializeObject(driverRequest), Encoding.UTF8, "application/json"));
-                    
-                    Console.WriteLine(driverRequestResponse.StatusCode);
-                }
-            }
-        }
+//        private static async Task ListenToRideRequest()
+//        {
+//            var response = await Client.GetStringAsync("http://localhost:5000/events/rideevent");
+//            var events = JsonConvert.DeserializeObject<IEnumerable<StoredEventReadModel>>(response);
+//
+//            foreach (var anEvent in events)
+//            {
+//                if (!ProcessedRides.Contains(anEvent.Id) &&
+//                    anEvent.EventType == "RideSharing.RideApi.Model.RideRequestedEvent")
+//                {
+//                    Console.WriteLine($"Event found {anEvent.EventType}");
+//                    
+//                    var rideRequestedEvent = JsonConvert.DeserializeObject<RideRequestedEvent>(JsonConvert.SerializeObject(anEvent.Event));
+//                    
+//                    // do the magic
+//                    var driverRequest =
+//                        new
+//                        {
+//                            RideId = rideRequestedEvent.Id,
+//                            PickupPoint = rideRequestedEvent.PickupPoint
+//                        };
+//
+//                    ProcessedRides.Add(rideRequestedEvent.Id);
+//                    
+//                    var driverRequestResponse = 
+//                        await Client.PostAsync("http://localhost:5001/api/driverrequest", 
+//                            new StringContent(JsonConvert.SerializeObject(driverRequest), Encoding.UTF8, "application/json"));
+//                    
+//                    Console.WriteLine(driverRequestResponse.StatusCode);
+//                }
+//            }
+//        }
     }
 
     public class RideRequestedEvent : RideEvent
