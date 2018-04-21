@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using RideSharing.DriverApi.Controllers;
 using RideSharing.DriverApi.Model;
@@ -21,7 +22,8 @@ namespace RideSharing.RideMatcher
         public async Task Poll()
         {
             var storedEventReadModels = await _rideApi.Get();
-            foreach (var storedEventReadModel in storedEventReadModels)
+            foreach (var storedEventReadModel in 
+                storedEventReadModels.Where(x => x.EventType == "RideSharing.RideApi.Model.RideRequestedEvent"))
             {
                 RideRequestedEvent rideRequestedEvent = storedEventReadModel.Event;
                 
