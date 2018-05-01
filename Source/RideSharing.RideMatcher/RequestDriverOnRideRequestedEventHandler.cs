@@ -10,18 +10,18 @@ namespace RideSharing.RideMatcher
 {
     public class RequestDriverOnRideRequestedEventHandler
     {
-        private readonly IRideEventsApi _rideApi;
+        private readonly IRideEventsApi _rideEventsApi;
         private readonly IDriverRequestsApi _driverRequestsApi;
 
-        public RequestDriverOnRideRequestedEventHandler(IRideEventsApi rideApi, IDriverRequestsApi driverRequestsApi)
+        public RequestDriverOnRideRequestedEventHandler(IRideEventsApi rideEventsApi, IDriverRequestsApi driverRequestsApi)
         {
-            _rideApi = rideApi;
+            _rideEventsApi = rideEventsApi;
             _driverRequestsApi = driverRequestsApi;
         }
 
         public async Task Poll()
         {
-            var storedEventReadModels = await _rideApi.Get();
+            var storedEventReadModels = await _rideEventsApi.GetUnprocessedMessages();
             foreach (var storedEventReadModel in 
                 storedEventReadModels.Where(x => x.EventType == "RideSharing.RideApi.Model.RideRequestedEvent"))
             {

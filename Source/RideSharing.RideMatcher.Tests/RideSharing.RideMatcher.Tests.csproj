@@ -26,5 +26,9 @@
       <Project>{C842CBE2-2D5C-4025-89B6-00EE7C8DCF35}</Project>
       <Name>RideSharing.RideMatcher</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RideSharing.Utilities\RideSharing.Utilities.csproj">
+      <Project>{FDF999AA-59E8-49A1-8D33-D032730AF8EC}</Project>
+      <Name>RideSharing.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

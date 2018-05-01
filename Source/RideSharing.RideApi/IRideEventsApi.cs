@@ -6,6 +6,6 @@ namespace RideSharing.RideApi
 {
     public interface IRideEventsApi
     {
-        Task<IReadOnlyList<StoredEventReadModel>> Get();
+        Task<IReadOnlyList<StoredEventReadModel>> GetUnprocessedMessages();
     }
 }

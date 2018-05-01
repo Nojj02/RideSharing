@@ -15,7 +15,7 @@ namespace RideSharing.RideMatcher.Tests
             _storedEvents.AddRange(storedEvents);
         }
         
-        public async Task<IReadOnlyList<StoredEventReadModel>> Get()
+        public async Task<IReadOnlyList<StoredEventReadModel>> GetUnprocessedMessages()
         {
             return await Task.FromResult(_storedEvents);
         }
