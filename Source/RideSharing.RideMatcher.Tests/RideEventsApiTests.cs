@@ -20,25 +20,11 @@ namespace RideSharing.RideMatcher.Tests
             [Fact]
             public async Task ReturnsFirstBatch_NoProcessedEventsYet()
             {
-                var anEvent =
-                    new RideRequestedEvent("A nice place", null);
-            
-                var ride = 
-                    new StoredEvent
-                    {
-                        EventType = "RideSharing.RideApi.Model.RideRequestedEvent",
-                        Event = anEvent
-                    };
-                
                 var httpClientWrapper = 
                     new PagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            new StoredEventReadModel
-                            {
-                                EventType = ride.EventType,
-                                Event = ride.Event
-                            }
+                            CreateStoredEventReadModel("A nice place")
                         });
                 
                 var rideEventsApi = 
@@ -59,40 +45,12 @@ namespace RideSharing.RideMatcher.Tests
             [Fact]
             public async Task ReturnsFirstBatch_NoProcessedEventsYet_MultipleNewEvents()
             {
-                var anEvent =
-                    new RideRequestedEvent("A nice place", null);
-            
-                var ride = 
-                    new StoredEvent
-                    {
-                        EventType = "RideSharing.RideApi.Model.RideRequestedEvent",
-                        Event = anEvent
-                    };
-                
-                var anotherEvent =
-                    new RideRequestedEvent("A nicer place", null);
-            
-                var anotherRide = 
-                    new StoredEvent
-                    {
-                        EventType = "RideSharing.RideApi.Model.RideRequestedEvent",
-                        Event = anotherEvent
-                    };
-                
                 var httpClientWrapper = 
                     new PagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            new StoredEventReadModel
-                            {
-                                EventType = ride.EventType,
-                                Event = ride.Event
-                            },
-                            new StoredEventReadModel
-                            {
-                                EventType = anotherRide.EventType,
-                                Event = anotherRide.Event
-                            }
+                            CreateStoredEventReadModel("A nice place"),
+                            CreateStoredEventReadModel("A nicer place")
                         });
                 
                 var rideEventsApi = 
@@ -143,6 +101,37 @@ namespace RideSharing.RideMatcher.Tests
                 Assert.Equal(8, results.Count);
                 Assert.Equal("1st", (string)results[0].Event.PickupPoint);
                 Assert.Equal("8th", (string)results[7].Event.PickupPoint);
+            }
+
+            [Fact]
+            public async Task ReturnsTwoBatches_NoProcessedEventsYet_EventsExactlyOneBatchSize_StillMakesTwoCalls()
+            {
+                var httpClientWrapper =
+                    new PagedResourceHttpClientWrapper(
+                        resources: new[]
+                        {
+                            CreateStoredEventReadModel("1st"),
+                            CreateStoredEventReadModel("2nd"),
+                            CreateStoredEventReadModel("3rd"),
+                            CreateStoredEventReadModel("4th"),
+                            CreateStoredEventReadModel("5th")
+                        });
+
+                var rideEventsApi =
+                    new RideEventsApi(
+                        httpClientWrapper: httpClientWrapper,
+                        baseUri: new Uri("http://localhost/resource/"),
+                        pageSize: 5);
+
+                var results = await rideEventsApi.GetUnprocessedMessages();
+
+                Assert.Equal(2, httpClientWrapper.RequestsSent.Count);
+                Assert.Equal("http://localhost/resource/1,5", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/6,10", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
+
+                Assert.Equal(5, results.Count);
+                Assert.Equal("1st", (string)results[0].Event.PickupPoint);
+                Assert.Equal("5th", (string)results[4].Event.PickupPoint);
             }
 
             private static StoredEventReadModel CreateStoredEventReadModel(string pickupPoint)
