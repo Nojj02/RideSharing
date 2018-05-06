@@ -2,13 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using RideSharing.RideApi.Controllers;
 using RideSharing.RideApi.DataAccess;
-using RideSharing.Utilities;
 using Xunit;
 
 namespace RideSharing.RideMatcher.Tests
@@ -21,15 +17,16 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsFirstBatch_NoProcessedEventsYet()
             {
                 var httpClientWrapper = 
-                    new PagedResourceHttpClientWrapper(
+                    new InMemoryPagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            CreateStoredEventReadModel("A nice place")
+                            CreateStoredEventReadModel(0, "A nice place")
                         });
                 
                 var rideEventsApi = 
                     new RideEventsApi(
                         httpClientWrapper: httpClientWrapper, 
+                        messageQueueProcessingDetailRepository: new InMemoryMessageQueueProcessingDetailRepository(), 
                         baseUri: new Uri("http://localhost/resource/"),
                         pageSize : 5);
 
@@ -46,16 +43,17 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsFirstBatch_NoProcessedEventsYet_MultipleNewEvents()
             {
                 var httpClientWrapper = 
-                    new PagedResourceHttpClientWrapper(
+                    new InMemoryPagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            CreateStoredEventReadModel("A nice place"),
-                            CreateStoredEventReadModel("A nicer place")
+                            CreateStoredEventReadModel(0, "A nice place"),
+                            CreateStoredEventReadModel(1, "A nicer place")
                         });
                 
                 var rideEventsApi = 
                     new RideEventsApi(
                         httpClientWrapper: httpClientWrapper, 
+                        messageQueueProcessingDetailRepository: new InMemoryMessageQueueProcessingDetailRepository(), 
                         baseUri: new Uri("http://localhost/resource/"),
                         pageSize : 5);
                 
@@ -73,22 +71,23 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsTwoBatches_NoProcessedEventsYet_EventsMoreThanOneBatchSize()
             {
                 var httpClientWrapper = 
-                    new PagedResourceHttpClientWrapper(
+                    new InMemoryPagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            CreateStoredEventReadModel("1st"),
-                            CreateStoredEventReadModel("2nd"),
-                            CreateStoredEventReadModel("3rd"),
-                            CreateStoredEventReadModel("4th"),
-                            CreateStoredEventReadModel("5th"),
-                            CreateStoredEventReadModel("6th"),
-                            CreateStoredEventReadModel("7th"),
-                            CreateStoredEventReadModel("8th"),
+                            CreateStoredEventReadModel(0, "1st"),
+                            CreateStoredEventReadModel(1, "2nd"),
+                            CreateStoredEventReadModel(2, "3rd"),
+                            CreateStoredEventReadModel(3, "4th"),
+                            CreateStoredEventReadModel(4, "5th"),
+                            CreateStoredEventReadModel(5, "6th"),
+                            CreateStoredEventReadModel(6, "7th"),
+                            CreateStoredEventReadModel(7, "8th")
                         });
                 
                 var rideEventsApi = 
                     new RideEventsApi(
                         httpClientWrapper: httpClientWrapper, 
+                        messageQueueProcessingDetailRepository: new InMemoryMessageQueueProcessingDetailRepository(), 
                         baseUri: new Uri("http://localhost/resource/"),
                         pageSize : 5);
 
@@ -107,19 +106,20 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsTwoBatches_NoProcessedEventsYet_EventsExactlyOneBatchSize_StillMakesTwoCalls()
             {
                 var httpClientWrapper =
-                    new PagedResourceHttpClientWrapper(
+                    new InMemoryPagedResourceHttpClientWrapper(
                         resources: new[]
                         {
-                            CreateStoredEventReadModel("1st"),
-                            CreateStoredEventReadModel("2nd"),
-                            CreateStoredEventReadModel("3rd"),
-                            CreateStoredEventReadModel("4th"),
-                            CreateStoredEventReadModel("5th")
+                            CreateStoredEventReadModel(0, "1st"),
+                            CreateStoredEventReadModel(1, "2nd"),
+                            CreateStoredEventReadModel(2, "3rd"),
+                            CreateStoredEventReadModel(3, "4th"),
+                            CreateStoredEventReadModel(4, "5th")
                         });
 
                 var rideEventsApi =
                     new RideEventsApi(
                         httpClientWrapper: httpClientWrapper,
+                        messageQueueProcessingDetailRepository: new InMemoryMessageQueueProcessingDetailRepository(), 
                         baseUri: new Uri("http://localhost/resource/"),
                         pageSize: 5);
 
@@ -133,57 +133,94 @@ namespace RideSharing.RideMatcher.Tests
                 Assert.Equal("1st", (string)results[0].Event.PickupPoint);
                 Assert.Equal("5th", (string)results[4].Event.PickupPoint);
             }
+            
+            [Fact]
+            public async Task SkipsPagesWithProcessedMessages_HasProcessedMessages()
+            {
+                var messageQueueProcessingDetailRepository =
+                    new InMemoryMessageQueueProcessingDetailRepository(
+                        new[] {
+                            new MessageQueueProcessingDetail(
+                                queueName: "ride",
+                                lastMessageNumber: 5
+                            )
+                        });
+                
+                var httpClientWrapper = 
+                    new InMemoryPagedResourceHttpClientWrapper(
+                        resources: new[]
+                        {
+                            CreateStoredEventReadModel(0, "1st"),
+                            CreateStoredEventReadModel(1, "2nd"),
+                            CreateStoredEventReadModel(2, "3rd"),
+                            CreateStoredEventReadModel(3, "4th"),
+                            CreateStoredEventReadModel(4, "5th"),
+                            CreateStoredEventReadModel(5, "6th"),
+                            CreateStoredEventReadModel(6, "7th"),
+                            CreateStoredEventReadModel(7, "8th"),
+                            CreateStoredEventReadModel(8, "9th")
+                        });
+                
+                var rideEventsApi = 
+                    new RideEventsApi(
+                        httpClientWrapper: httpClientWrapper,
+                        messageQueueProcessingDetailRepository: messageQueueProcessingDetailRepository,
+                        baseUri: new Uri("http://localhost/resource/"),
+                        pageSize : 5);
 
-            private static StoredEventReadModel CreateStoredEventReadModel(string pickupPoint)
+                var results = await rideEventsApi.GetUnprocessedMessages();
+                
+                Assert.Equal(1, httpClientWrapper.RequestsSent.Count);
+                Assert.Equal("http://localhost/resource/6,10", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+
+                Assert.Equal(3, results.Count);
+                Assert.Equal("7th", (string)results[0].Event.PickupPoint);
+                Assert.Equal("8th", (string)results[1].Event.PickupPoint);
+                Assert.Equal("9th", (string)results[2].Event.PickupPoint);
+            }
+
+            private static StoredEventReadModel CreateStoredEventReadModel(int version, string pickupPoint)
             {
                 var anEvent =
-                    new RideRequestedEvent(pickupPoint, null);
-
-                var ride =
-                    new StoredEvent
+                    new RideRequestedEvent(pickupPoint, null)
                     {
-                        EventType = "RideSharing.RideApi.Model.RideRequestedEvent",
-                        Event = anEvent
+                        Version = version
                     };
 
-                var storedEventReadModel = new StoredEventReadModel
-                {
-                    EventType = ride.EventType,
-                    Event = ride.Event
-                };
+                var storedEvent =
+                    new StoredEvent
+                    {
+                        Id = anEvent.Id,
+                        Version = anEvent.Version,
+                        EventType = "RideSharing.RideApi.Model.RideRequestedEvent",
+                        Event = anEvent,
+                        TimeStamp = DateTimeOffset.UtcNow
+                    };
+
+                var storedEventReadModel = new StoredEventReadModel(storedEvent);
                 return storedEventReadModel;
             }
         }
     }
 
-    public class PagedResourceHttpClientWrapper : IHttpClientWrapper
+    public class InMemoryMessageQueueProcessingDetailRepository : IMessageQueueProcessingDetailRepository
     {
-        private readonly IList<object> _resources;
-        private readonly List<HttpRequestMessage> _requestsSent = new List<HttpRequestMessage>();
+        private readonly IEnumerable<MessageQueueProcessingDetail> _messageQueueProcessingDetails;
 
-        public PagedResourceHttpClientWrapper(
-            IReadOnlyList<object> resources)
+        public InMemoryMessageQueueProcessingDetailRepository()
+            : this(new List<MessageQueueProcessingDetail>())
         {
-            _resources = resources.ToList();
+        }
+        
+        public InMemoryMessageQueueProcessingDetailRepository(
+            IEnumerable<MessageQueueProcessingDetail> messageQueueProcessingDetails)
+        {
+            _messageQueueProcessingDetails = messageQueueProcessingDetails;
         }
 
-        public IReadOnlyList<HttpRequestMessage> RequestsSent => _requestsSent;
-
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage)
+        public MessageQueueProcessingDetail Get(string queueName)
         {
-            _requestsSent.Add(httpRequestMessage);
-            
-            var page = PagedResourceUri.ParseRecordRangeFrom(httpRequestMessage.RequestUri);
-            var resources = _resources.Skip(page.Start - 1).Take(page.End - page.Start + 1);
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(resources))
-            });
+            return _messageQueueProcessingDetails.SingleOrDefault(x => x.QueueName == queueName);
         }
-    }
-
-    public interface IHttpClientWrapper
-    {
-        Task<HttpResponseMessage> SendAsync(HttpRequestMessage httpRequestMessage);
     }
 }

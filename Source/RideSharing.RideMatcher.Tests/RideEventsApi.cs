@@ -11,26 +11,39 @@ namespace RideSharing.RideMatcher.Tests
 {
     public class RideEventsApi : IRideEventsApi
     {
+        private const string QueueName = "ride";
         private readonly IHttpClientWrapper _httpClientWrapper;
+        private readonly IMessageQueueProcessingDetailRepository _messageQueueProcessingDetailRepository;
         private readonly Uri _baseUri;
         private readonly int _pageSize;
 
         public RideEventsApi(
-            IHttpClientWrapper httpClientWrapper, 
+            IHttpClientWrapper httpClientWrapper,
+            IMessageQueueProcessingDetailRepository messageQueueProcessingDetailRepository,
             Uri baseUri,
             int pageSize)
         {
             _httpClientWrapper = httpClientWrapper;
+            _messageQueueProcessingDetailRepository = messageQueueProcessingDetailRepository;
             _baseUri = baseUri;
             _pageSize = pageSize;
         }
 
         public async Task<IReadOnlyList<StoredEventReadModel>> GetUnprocessedMessages()
         {
+            var messageQueueProcessingDetail = _messageQueueProcessingDetailRepository.Get(QueueName);
+            var lastProcessedMessageNumber = messageQueueProcessingDetail != null
+                ? messageQueueProcessingDetail.LastMessageNumber
+                : -1;
+            
             var storedEventReadModels = new List<StoredEventReadModel>();
 
-            var rangeStart = 1;
+            var pagesToSkip = lastProcessedMessageNumber / _pageSize;
+            var rangeStart = _pageSize * pagesToSkip + 1;
             var newStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
+            newStoredEventReadModels = 
+                newStoredEventReadModels
+                    .Where(x => x.Version > lastProcessedMessageNumber).ToList();
             storedEventReadModels.AddRange(newStoredEventReadModels);
 
             while (newStoredEventReadModels.Count >= _pageSize)
