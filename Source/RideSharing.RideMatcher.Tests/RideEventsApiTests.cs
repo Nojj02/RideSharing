@@ -17,7 +17,7 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsFirstBatch_NoProcessedEventsYet()
             {
                 var httpClientWrapper = 
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "A nice place")
@@ -33,7 +33,7 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
                 
                 Assert.Single(httpClientWrapper.RequestsSent);
-                Assert.Equal("http://localhost/resource/1,5", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/0,4", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
                 
                 Assert.Single(results);
                 Assert.Equal("RideSharing.RideApi.Model.RideRequestedEvent", results[0].EventType);
@@ -43,7 +43,7 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsFirstBatch_NoProcessedEventsYet_MultipleNewEvents()
             {
                 var httpClientWrapper = 
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "A nice place"),
@@ -60,7 +60,7 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
                 
                 Assert.Single(httpClientWrapper.RequestsSent);
-                Assert.Equal("http://localhost/resource/1,5", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/0,4", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
 
                 Assert.Equal(2, results.Count);
                 Assert.Equal("A nice place", (string)results[0].Event.PickupPoint);
@@ -71,7 +71,7 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsTwoBatches_NoProcessedEventsYet_EventsMoreThanOneBatchSize()
             {
                 var httpClientWrapper = 
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "1st"),
@@ -94,8 +94,8 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
                 
                 Assert.Equal(2, httpClientWrapper.RequestsSent.Count);
-                Assert.Equal("http://localhost/resource/1,5", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
-                Assert.Equal("http://localhost/resource/6,10", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/0,4", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/5,9", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
 
                 Assert.Equal(8, results.Count);
                 Assert.Equal("1st", (string)results[0].Event.PickupPoint);
@@ -106,7 +106,7 @@ namespace RideSharing.RideMatcher.Tests
             public async Task ReturnsTwoBatches_NoProcessedEventsYet_EventsExactlyOneBatchSize_StillMakesTwoCalls()
             {
                 var httpClientWrapper =
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "1st"),
@@ -126,8 +126,8 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
 
                 Assert.Equal(2, httpClientWrapper.RequestsSent.Count);
-                Assert.Equal("http://localhost/resource/1,5", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
-                Assert.Equal("http://localhost/resource/6,10", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/0,4", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/5,9", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
 
                 Assert.Equal(5, results.Count);
                 Assert.Equal("1st", (string)results[0].Event.PickupPoint);
@@ -147,7 +147,7 @@ namespace RideSharing.RideMatcher.Tests
                         });
                 
                 var httpClientWrapper = 
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "1st"),
@@ -173,8 +173,8 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
                 
                 Assert.Equal(2, httpClientWrapper.RequestsSent.Count);
-                Assert.Equal("http://localhost/resource/7,9", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
-                Assert.Equal("http://localhost/resource/10,12", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/6,8", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/9,11", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
 
                 Assert.Equal(3, results.Count);
                 Assert.Equal("9th", (string)results[0].Event.PickupPoint);
@@ -195,7 +195,7 @@ namespace RideSharing.RideMatcher.Tests
                         });
                 
                 var httpClientWrapper = 
-                    new InMemoryPagedResourceHttpClientWrapper(
+                    new InMemoryPagedStoredEventHttpClientWrapper(
                         resources: new[]
                         {
                             CreateStoredEventReadModel(0, "1st"),
@@ -219,7 +219,7 @@ namespace RideSharing.RideMatcher.Tests
                 var results = await rideEventsApi.GetUnprocessedMessages();
                 
                 Assert.Equal(1, httpClientWrapper.RequestsSent.Count);
-                Assert.Equal("http://localhost/resource/6,10", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/5,9", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
 
                 Assert.Equal(3, results.Count);
                 Assert.Equal("7th", (string)results[0].Event.PickupPoint);

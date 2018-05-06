@@ -4,17 +4,19 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using RideSharing.RideApi.Controllers;
+using RideSharing.RideApi.DataAccess;
 using RideSharing.Utilities;
 
 namespace RideSharing.RideMatcher.Tests
 {
-    public class InMemoryPagedResourceHttpClientWrapper : IHttpClientWrapper
+    public class InMemoryPagedStoredEventHttpClientWrapper : IHttpClientWrapper
     {
-        private readonly IList<object> _resources;
+        private readonly IList<StoredEventReadModel> _resources;
         private readonly List<HttpRequestMessage> _requestsSent = new List<HttpRequestMessage>();
 
-        public InMemoryPagedResourceHttpClientWrapper(
-            IReadOnlyList<object> resources)
+        public InMemoryPagedStoredEventHttpClientWrapper(
+            IReadOnlyList<StoredEventReadModel> resources)
         {
             _resources = resources.ToList();
         }
@@ -26,7 +28,7 @@ namespace RideSharing.RideMatcher.Tests
             _requestsSent.Add(httpRequestMessage);
             
             var page = PagedResourceUri.ParseRecordRangeFrom(httpRequestMessage.RequestUri);
-            var resources = _resources.Skip(page.Start - 1).Take(page.End - page.Start + 1);
+            var resources = _resources.Where(x => x.Version >= page.Start && x.Version <= page.End);
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonConvert.SerializeObject(resources))

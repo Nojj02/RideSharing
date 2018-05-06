@@ -39,7 +39,7 @@ namespace RideSharing.RideMatcher.Tests
             var storedEventReadModels = new List<StoredEventReadModel>();
 
             var pagesToSkip = lastProcessedMessageNumber / _pageSize;
-            var rangeStart = _pageSize * pagesToSkip + 1;
+            var rangeStart = _pageSize * pagesToSkip;
             var inRangeStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
             var newStoredEventReadModels = 
                 inRangeStoredEventReadModels
