@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using RideSharing.RideApi.Controllers;
 using RideSharing.RideApi.DataAccess;
@@ -248,27 +246,6 @@ namespace RideSharing.RideMatcher.Tests
                 var storedEventReadModel = new StoredEventReadModel(storedEvent);
                 return storedEventReadModel;
             }
-        }
-    }
-
-    public class InMemoryMessageQueueProcessingDetailRepository : IMessageQueueProcessingDetailRepository
-    {
-        private readonly IEnumerable<MessageQueueProcessingDetail> _messageQueueProcessingDetails;
-
-        public InMemoryMessageQueueProcessingDetailRepository()
-            : this(new List<MessageQueueProcessingDetail>())
-        {
-        }
-        
-        public InMemoryMessageQueueProcessingDetailRepository(
-            IEnumerable<MessageQueueProcessingDetail> messageQueueProcessingDetails)
-        {
-            _messageQueueProcessingDetails = messageQueueProcessingDetails;
-        }
-
-        public MessageQueueProcessingDetail Get(string queueName)
-        {
-            return _messageQueueProcessingDetails.SingleOrDefault(x => x.QueueName == queueName);
         }
     }
 }

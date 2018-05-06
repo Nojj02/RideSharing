@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using RideSharing.RideApi.Controllers;
 using RideSharing.RideApi.DataAccess;
 using RideSharing.Utilities;
+using RideSharing.Utilities.Http;
 
 namespace RideSharing.RideMatcher.Tests
 {

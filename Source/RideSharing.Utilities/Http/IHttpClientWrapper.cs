@@ -1,7 +1,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace RideSharing.RideMatcher.Tests
+namespace RideSharing.RideMatcher
 {
     public interface IHttpClientWrapper
     {
