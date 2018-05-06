@@ -40,17 +40,17 @@ namespace RideSharing.RideMatcher.Tests
 
             var pagesToSkip = lastProcessedMessageNumber / _pageSize;
             var rangeStart = _pageSize * pagesToSkip + 1;
-            var newStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
-            newStoredEventReadModels = 
-                newStoredEventReadModels
+            var inRangeStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
+            var newStoredEventReadModels = 
+                inRangeStoredEventReadModels
                     .Where(x => x.Version > lastProcessedMessageNumber).ToList();
             storedEventReadModels.AddRange(newStoredEventReadModels);
 
-            while (newStoredEventReadModels.Count >= _pageSize)
+            while (inRangeStoredEventReadModels.Count >= _pageSize)
             {
                 rangeStart += _pageSize;
-                newStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
-                storedEventReadModels.AddRange(newStoredEventReadModels);
+                inRangeStoredEventReadModels = await GetStoredEventReadModels(rangeStart);
+                storedEventReadModels.AddRange(inRangeStoredEventReadModels);
             }
             
             return storedEventReadModels;

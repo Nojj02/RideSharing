@@ -135,6 +135,54 @@ namespace RideSharing.RideMatcher.Tests
             }
             
             [Fact]
+            public async Task SkipsPagesWithProcessedMessages_HasProcessedMessages_MultiplePagesSkipped()
+            {
+                var messageQueueProcessingDetailRepository =
+                    new InMemoryMessageQueueProcessingDetailRepository(
+                        new[] {
+                            new MessageQueueProcessingDetail(
+                                queueName: "ride",
+                                lastMessageNumber: 7
+                            )
+                        });
+                
+                var httpClientWrapper = 
+                    new InMemoryPagedResourceHttpClientWrapper(
+                        resources: new[]
+                        {
+                            CreateStoredEventReadModel(0, "1st"),
+                            CreateStoredEventReadModel(1, "2nd"),
+                            CreateStoredEventReadModel(2, "3rd"),
+                            CreateStoredEventReadModel(3, "4th"),
+                            CreateStoredEventReadModel(4, "5th"),
+                            CreateStoredEventReadModel(5, "6th"),
+                            CreateStoredEventReadModel(6, "7th"),
+                            CreateStoredEventReadModel(7, "8th"),
+                            CreateStoredEventReadModel(8, "9th"),
+                            CreateStoredEventReadModel(9, "10th"),
+                            CreateStoredEventReadModel(10, "11th")
+                        });
+                
+                var rideEventsApi = 
+                    new RideEventsApi(
+                        httpClientWrapper: httpClientWrapper,
+                        messageQueueProcessingDetailRepository: messageQueueProcessingDetailRepository,
+                        baseUri: new Uri("http://localhost/resource/"),
+                        pageSize : 3);
+
+                var results = await rideEventsApi.GetUnprocessedMessages();
+                
+                Assert.Equal(2, httpClientWrapper.RequestsSent.Count);
+                Assert.Equal("http://localhost/resource/7,9", httpClientWrapper.RequestsSent[0].RequestUri.AbsoluteUri);
+                Assert.Equal("http://localhost/resource/10,12", httpClientWrapper.RequestsSent[1].RequestUri.AbsoluteUri);
+
+                Assert.Equal(3, results.Count);
+                Assert.Equal("9th", (string)results[0].Event.PickupPoint);
+                Assert.Equal("10th", (string)results[1].Event.PickupPoint);
+                Assert.Equal("11th", (string)results[2].Event.PickupPoint);
+            }
+            
+            [Fact]
             public async Task SkipsPagesWithProcessedMessages_HasProcessedMessages()
             {
                 var messageQueueProcessingDetailRepository =
